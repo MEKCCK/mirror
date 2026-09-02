@@ -6,9 +6,20 @@ package org.yuzu.yuzu_emu.network
 import android.content.Context
 import org.yuzu.yuzu_emu.R
 import org.yuzu.yuzu_emu.features.settings.model.StringSetting
+import java.net.Inet6Address
 import java.net.InetAddress
 
 object NetDataValidators {
+    // IPv4 literal
+    private val IPV4_ADDRESS_REGEX = Regex(
+        "^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"
+    )
+
+    // Hostname / domain (single label LAN names and fully qualified domains).
+    // ENet resolves hostnames via getaddrinfo on the native side.
+    private val HOSTNAME_REGEX = Regex(
+        "^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$"
+    )
     fun roomName(s: String): Boolean {
         return s.length in 3..20
     }
@@ -34,9 +45,27 @@ object NetDataValidators {
     }
 
     fun ipAddress(s: String): Boolean {
+        val input = s.trim()
+        if (input.isEmpty()) {
+            return false
+        }
+
+        // IPv4 literal
+        if (IPV4_ADDRESS_REGEX.matches(input)) {
+            return true
+        }
+
+        // Domain / hostname — the PC build already supports these and ENet
+        // resolves them on the native side, so allow them here too. This also
+        // avoids a blocking DNS lookup on the UI thread.
+        if (HOSTNAME_REGEX.matches(input)) {
+            return true
+        }
+
+        // IPv6 literal (validated locally, no DNS lookup for a literal)
         return try {
-            InetAddress.getByName(s)
-            s.length >= 7
+            val address = InetAddress.getByName(input)
+            address is Inet6Address
         } catch (_: Exception) {
             false
         }

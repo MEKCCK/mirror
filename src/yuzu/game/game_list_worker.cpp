@@ -210,7 +210,13 @@ QList<QStandardItem*> MakeGameListEntry(const std::string& path, const std::stri
         it != compatibility_list.end() ? it->second.first : QStringLiteral("99");
 
     auto const file_type = loader.GetFileType();
-    auto const file_type_string = QString::fromStdString(Loader::GetFileTypeString(file_type));
+    QString file_type_string = QString::fromStdString(Loader::GetFileTypeString(file_type));
+    const auto ext = Common::ToLower(std::string(Common::FS::GetExtensionFromFilename(path)));
+    if (ext == "nsz") {
+        file_type_string = QStringLiteral("NSZ");
+    } else if (ext == "xcz") {
+        file_type_string = QStringLiteral("XCZ");
+    }
 
     QString patch_versions = GetGameListCachedObject(
         fmt::format("{:016X}", patch.GetTitleID()), "pv.txt", [&patch, &loader] {
@@ -367,7 +373,8 @@ void GameListWorker::ScanFileSystem(ScanTarget target, const std::string& dir_pa
             }
 
             if (target == ScanTarget::PopulateGameList &&
-                (file_type == Loader::FileType::XCI || file_type == Loader::FileType::NSP) &&
+                (file_type == Loader::FileType::XCI || file_type == Loader::FileType::XCZ ||
+                 file_type == Loader::FileType::NSP || file_type == Loader::FileType::NSZ) &&
                 !Loader::IsBootableGameContainer(file, file_type)) {
                 return true;
             }
@@ -381,8 +388,8 @@ void GameListWorker::ScanFileSystem(ScanTarget target, const std::string& dir_pa
                                        FileSys::GetCRTypeFromNCAType(FileSys::NCA{file}.GetType()),
                                        program_id, file);
                 } else if (Settings::values.ext_content_from_game_dirs.GetValue() &&
-                           (file_type == Loader::FileType::XCI ||
-                            file_type == Loader::FileType::NSP)) {
+                           (file_type == Loader::FileType::XCI || file_type == Loader::FileType::XCZ ||
+                            file_type == Loader::FileType::NSP || file_type == Loader::FileType::NSZ)) {
                     void(provider->AddEntriesFromContainer(file));
                 }
             } else {
@@ -390,7 +397,8 @@ void GameListWorker::ScanFileSystem(ScanTarget target, const std::string& dir_pa
                 loader->ReadProgramIds(program_ids);
 
                 if (res2 == Loader::ResultStatus::Success && program_ids.size() > 1 &&
-                    (file_type == Loader::FileType::XCI || file_type == Loader::FileType::NSP)) {
+                    (file_type == Loader::FileType::XCI || file_type == Loader::FileType::XCZ ||
+                     file_type == Loader::FileType::NSP || file_type == Loader::FileType::NSZ)) {
                     for (const auto id : program_ids) {
                         // dravee suggested this, only viable way to
                         // not show sub-games in qlaunch for now.

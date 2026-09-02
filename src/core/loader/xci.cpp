@@ -45,6 +45,9 @@ AppLoader_XCI::AppLoader_XCI(FileSys::VirtualFile file_,
 AppLoader_XCI::~AppLoader_XCI() = default;
 
 FileType AppLoader_XCI::IdentifyType(const FileSys::VirtualFile& xci_file) {
+    const bool is_xcz =
+        xci_file && (xci_file->GetName().ends_with(".xcz") || xci_file->GetName().ends_with(".XCZ"));
+    const FileType return_type = is_xcz ? FileType::XCZ : FileType::XCI;
     const FileSys::XCI xci(xci_file);
 
     if (xci.GetStatus() != ResultStatus::Success) {
@@ -54,7 +57,7 @@ FileType AppLoader_XCI::IdentifyType(const FileSys::VirtualFile& xci_file) {
     // Identify XCI as a valid container even when it does not include a bootable Program NCA.
     // Bootability is handled by AppLoader_XCI::Load().
     if (xci.GetSecurePartitionNSP() != nullptr) {
-        return FileType::XCI;
+        return return_type;
     }
 
     return FileType::Error;

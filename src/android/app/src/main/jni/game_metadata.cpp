@@ -96,7 +96,8 @@ jboolean Java_org_yuzu_yuzu_1emu_utils_GameMetadata_getIsValid(JNIEnv* env, jobj
         return false;
     }
 
-    if ((file_type == Loader::FileType::NSP || file_type == Loader::FileType::XCI) &&
+    if ((file_type == Loader::FileType::NSP || file_type == Loader::FileType::XCI ||
+         file_type == Loader::FileType::NSZ || file_type == Loader::FileType::XCZ) &&
         !Loader::IsBootableGameContainer(file, file_type)) {
         return false;
     }

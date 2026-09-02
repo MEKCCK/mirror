@@ -42,6 +42,13 @@
           </property>
          </widget>
         </item>
+        <item row="3" column="0" colspan="2">
+         <widget class="QCheckBox" name="netplay_legacy_protocol">
+          <property name="text">
+           <string>Netplay 0.2.0 compatibility mode (play with 0.2.0 builds)</string>
+          </property>
+         </widget>
+        </item>
        </layout>
       </widget>
      </item>
