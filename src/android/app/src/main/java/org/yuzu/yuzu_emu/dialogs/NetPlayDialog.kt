@@ -32,6 +32,7 @@ import org.yuzu.yuzu_emu.databinding.DialogMultiplayerRoomBinding
 import org.yuzu.yuzu_emu.databinding.ItemBanListBinding
 import org.yuzu.yuzu_emu.databinding.ItemButtonNetplayBinding
 import org.yuzu.yuzu_emu.databinding.ItemTextNetplayBinding
+import org.yuzu.yuzu_emu.features.settings.model.BooleanSetting
 import org.yuzu.yuzu_emu.features.settings.model.StringSetting
 import org.yuzu.yuzu_emu.network.NetDataValidators
 import org.yuzu.yuzu_emu.network.NetPlayManager
@@ -493,6 +494,13 @@ class NetPlayDialog(context: Context) : BottomSheetDialog(context) {
         binding.ipAddress.setText(NetPlayManager.getRoomAddress(activity))
         binding.ipPort.setText(NetPlayManager.getRoomPort(activity))
         binding.username.setText(StringSetting.WEB_USERNAME.getString())
+
+        // Legacy NetPlay compatibility mode (0.2.0 in-game socket behaviour)
+        binding.checkboxLegacyProtocol.isChecked =
+            BooleanSetting.NETPLAY_LEGACY_PROTOCOL.getBoolean()
+        binding.checkboxLegacyProtocol.setOnCheckedChangeListener { _, checked ->
+            BooleanSetting.NETPLAY_LEGACY_PROTOCOL.setBoolean(checked)
+        }
 
         // manually trigger text listeners
         if (isCreateRoom) {

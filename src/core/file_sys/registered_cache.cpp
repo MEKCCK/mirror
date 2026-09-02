@@ -796,6 +796,12 @@ std::vector<ContentProviderEntry> RegisteredCache::ListEntriesFilter(
 static std::shared_ptr<NCA> GetNCAFromNSPForID(const NSP& nsp, const NcaID& id) {
     auto file = nsp.GetFile(fmt::format("{}.nca", Common::HexToString(id, false)));
     if (file == nullptr) {
+        file = nsp.GetFile(fmt::format("{}.ncz", Common::HexToString(id, false)));
+    }
+    if (file == nullptr) {
+        file = nsp.GetFile(fmt::format("{}.NCZ", Common::HexToString(id, false)));
+    }
+    if (file == nullptr) {
         return nullptr;
     }
     return std::make_shared<NCA>(std::move(file));
@@ -1399,9 +1405,9 @@ void ExternalContentProvider::ScanDirectory(const VirtualDir& dir) {
 
         const auto extension = Common::ToLower(filename.substr(dot_pos + 1));
 
-        if (extension == "nsp") {
+        if (extension == "nsp" || extension == "nsz") {
             ProcessNSP(file);
-        } else if (extension == "xci") {
+        } else if (extension == "xci" || extension == "xcz") {
             ProcessXCI(file);
         }
     }

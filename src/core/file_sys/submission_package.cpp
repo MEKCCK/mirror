@@ -15,6 +15,7 @@
 #include "core/file_sys/common_funcs.h"
 #include "core/file_sys/content_archive.h"
 #include "core/file_sys/nca_metadata.h"
+#include "core/file_sys/ncz_virtual_file.h"
 #include "core/file_sys/partition_filesystem.h"
 #include "core/file_sys/program_metadata.h"
 #include "core/file_sys/submission_package.h"
@@ -218,14 +219,49 @@ void NSP::InitializeExeFSAndRomFS(const std::vector<VirtualFile>& files) {
     romfs = *iter;
 }
 
+static bool IsNczFile(const VirtualFile& file) {
+    if (!file || file->GetSize() < 8) {
+        return false;
+    }
+    const std::string& name = file->GetName();
+    if (name.ends_with(".ncz") || name.ends_with(".NCZ")) {
+        return true;
+    }
+    constexpr u64 MAGIC_NCZBLOCK = 0x4B434F4C425A434E;
+    constexpr u64 MAGIC_NCZSECTN = 0x4E544345535A434E;
+    u64 magic = 0;
+    if (file->ReadObject(&magic, 0) == sizeof(magic)) {
+        if (magic == MAGIC_NCZBLOCK || magic == MAGIC_NCZSECTN) {
+            return true;
+        }
+    }
+    return false;
+}
+
 void NSP::ReadNCAs(const std::vector<VirtualFile>& files) {
+    const bool is_nsz_container =
+        file->GetName().ends_with(".nsz") || file->GetName().ends_with(".NSZ") ||
+        file->GetName().ends_with(".xcz") || file->GetName().ends_with(".XCZ");
+
     for (const auto& outer_file : files) {
-        if (outer_file->GetName().size() < 9 ||
-            outer_file->GetName().substr(outer_file->GetName().size() - 9) != ".cnmt.nca") {
+        if (outer_file->GetName().size() < 9) {
             continue;
         }
 
-        const auto nca = std::make_shared<NCA>(outer_file);
+        const std::string outer_name = outer_file->GetName();
+        const bool is_cnmt_ncz = outer_name.ends_with(".cnmt.ncz");
+        const bool is_cnmt_nca =
+            is_cnmt_ncz || outer_name.substr(outer_name.size() - 9) == ".cnmt.nca";
+        if (!is_cnmt_nca) {
+            continue;
+        }
+
+        VirtualFile file_to_use = outer_file;
+        if (is_nsz_container || is_cnmt_ncz || IsNczFile(outer_file)) {
+            file_to_use = std::make_shared<NCZVirtualFile>(outer_file);
+        }
+
+        const auto nca = std::make_shared<NCA>(file_to_use);
         if (nca->GetStatus() != Loader::ResultStatus::Success || nca->GetSubdirectories().empty()) {
             program_status[nca->GetTitleId()] = nca->GetStatus();
             continue;
@@ -246,6 +282,17 @@ void NSP::ReadNCAs(const std::vector<VirtualFile>& files) {
                 const auto id_string = Common::HexToString(rec.nca_id, false);
                 auto next_file = pfs->GetFile(fmt::format("{}.nca", id_string));
 
+                // NSZ/XCZ: NCA content may be stored as compressed .ncz files.
+                if (next_file == nullptr) {
+                    next_file = pfs->GetFile(fmt::format("{}.ncz", id_string));
+                }
+                if (next_file == nullptr) {
+                    next_file = pfs->GetFile(fmt::format("{}.nca", Common::HexToString(rec.nca_id, true)));
+                }
+                if (next_file == nullptr) {
+                    next_file = pfs->GetFile(fmt::format("{}.ncz", Common::HexToString(rec.nca_id, true)));
+                }
+
                 if (next_file == nullptr) {
                     if (rec.type != ContentRecordType::DeltaFragment) {
                         LOG_WARNING(Service_FS,
@@ -255,6 +302,11 @@ void NSP::ReadNCAs(const std::vector<VirtualFile>& files) {
                     }
 
                     continue;
+                }
+
+                if (is_nsz_container || next_file->GetName().ends_with(".ncz") ||
+                    IsNczFile(next_file)) {
+                    next_file = std::make_shared<NCZVirtualFile>(next_file);
                 }
 
                 auto next_nca = std::make_shared<NCA>(std::move(next_file));

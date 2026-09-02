@@ -2806,9 +2806,9 @@ void MainWindow::IncrementInstallProgress() {
 
 void MainWindow::OnMenuInstallToNAND() {
     const QString file_filter =
-        tr("Installable Switch File (*.nca *.nsp *.xci);;Nintendo Content Archive "
-           "(*.nca);;Nintendo Submission Package (*.nsp);;NX Cartridge "
-           "Image (*.xci)");
+        tr("Installable Switch File (*.nca *.nsp *.nsz *.xci *.xcz);;Nintendo Content Archive "
+           "(*.nca);;Nintendo Submission Package (*.nsp *.nsz);;NX Cartridge "
+           "Image (*.xci *.xcz)");
 
     QStringList filenames = QFileDialog::getOpenFileNames(
         this, tr("Install Files"), QString::fromStdString(UISettings::values.roms_path),

@@ -145,6 +145,14 @@
                 android:inputType="none" />
         </com.google.android.material.textfield.TextInputLayout>
 
+        <CheckBox
+            android:id="@+id/checkbox_legacy_protocol"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:text="@string/multiplayer_legacy_protocol"
+            android:textColor="?attr/colorOnSurface" />
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_confirm"
             android:layout_width="wrap_content"

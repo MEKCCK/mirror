@@ -27,6 +27,8 @@
 
 namespace FileSys {
 
+class NCZVirtualFile;
+
 // An enumeration representing what can be at the end of a path in a VfsFilesystem
 enum class VfsEntryType {
     None,
@@ -188,6 +190,12 @@ public:
 
     // Returns the full path of this file as a string, recursively
     virtual std::string GetFullPath() const;
+
+    // NCZ (compressed NCA/NSZ/XCZ) support helpers
+    virtual bool IsNczFile() const { return false; }
+    virtual bool HasDecryptedSections() const { return false; }
+    virtual std::shared_ptr<VfsFile> GetUnderlyingFile() const { return nullptr; }
+    virtual NCZVirtualFile* GetNczFilePointer() { return nullptr; }
 };
 
 // A class representing a directory in an abstract filesystem.
