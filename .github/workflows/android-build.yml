@@ -48,7 +48,8 @@ jobs:
         with:
           name: eden-mainline-release
           path: |
-            src/android/app/build/outputs/apk/mainline/debug/*.apk
-            src/android/app/build/outputs/apk/mainline/debug/*.aab
+            src/android/app/build/outputs/apk/mainline/release/*.apk
+            src/android/app/build/outputs/apk/mainline/release/*.aab
+            src/android/app/build/outputs/bundle/mainlineRelease/*.aab
           if-no-files-found: warn
           retention-days: 14
