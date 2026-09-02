@@ -41,12 +41,12 @@ jobs:
       - name: Configure native (fetch CPM deps incl. SDL3 java sources)
         working-directory: src/android
         run: |
-          ./gradlew :app:configureCMakeDebug --no-daemon
+          ./gradlew :app:configureCMakeRelease --no-daemon
 
       - name: Build Mainline (Debug)
         working-directory: src/android
         run: |
-          ./gradlew assembleMainlineDebug --no-daemon --stacktrace
+          ./gradlew assembleMainlineRelease --no-daemon --stacktrace
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
