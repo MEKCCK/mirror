@@ -38,12 +38,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y glslang-tools
 
-      - name: Configure native (fetch CPM deps incl. SDL3 java sources)
-        working-directory: src/android
-        run: |
-          ./gradlew :app:configureCMakeMainlineRelease --no-daemon
-
-      - name: Build Mainline (Debug)
+      - name: Build Mainline (Release)
         working-directory: src/android
         run: |
           ./gradlew assembleMainlineRelease --no-daemon --stacktrace
@@ -51,7 +46,7 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: eden-mainline-debug
+          name: eden-mainline-release
           path: |
             src/android/app/build/outputs/apk/mainline/debug/*.apk
             src/android/app/build/outputs/apk/mainline/debug/*.aab
