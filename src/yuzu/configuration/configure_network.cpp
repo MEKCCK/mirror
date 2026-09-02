@@ -24,7 +24,6 @@ ConfigureNetwork::~ConfigureNetwork() = default;
 void ConfigureNetwork::ApplyConfiguration() {
     Settings::values.network_interface = ui->network_interface->currentText().toStdString();
     Settings::values.airplane_mode = ui->airplane_mode->isChecked();
-    Settings::values.netplay_legacy_protocol = ui->netplay_legacy_protocol->isChecked();
 }
 
 void ConfigureNetwork::changeEvent(QEvent* event) {
@@ -43,9 +42,7 @@ void ConfigureNetwork::SetConfiguration() {
     const bool runtime_lock = !system.IsPoweredOn();
     auto const network_interface = Settings::values.network_interface.GetValue();
     auto const airplane_mode = Settings::values.airplane_mode.GetValue();
-    auto const netplay_legacy_protocol = Settings::values.netplay_legacy_protocol.GetValue();
     ui->network_interface->setCurrentText(QString::fromStdString(network_interface));
     ui->network_interface->setEnabled(runtime_lock);
     ui->airplane_mode->setChecked(airplane_mode);
-    ui->netplay_legacy_protocol->setChecked(netplay_legacy_protocol);
 }

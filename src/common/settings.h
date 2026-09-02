@@ -831,9 +831,6 @@ struct Values {
     Setting<std::string> network_interface{linkage, std::string(), "network_interface",
                                            Category::Network};
     SwitchableSetting<bool> airplane_mode{linkage, false, "airplane_mode", Category::Network};
-    // Legacy NetPlay compatibility mode (0.2.0 in-game socket behaviour)
-    Setting<bool> netplay_legacy_protocol{linkage, false, "netplay_legacy_protocol",
-                                          Category::Network};
 
     // WebService
     Setting<std::string> web_api_url{linkage, "api.ynet-fun.xyz", "web_api_url",

@@ -130,7 +130,6 @@
     <string name="multiplayer_username">Username</string>
     <string name="multiplayer_ip_address">IP Address</string>
     <string name="multiplayer_ip_port">Port</string>
-    <string name="multiplayer_legacy_protocol">0.2.0 compatibility mode (play with 0.2.0 builds)</string>
     <string name="multiplayer_create_room_success">Room created successfully</string>
     <string name="multiplayer_join_room_success">Joined room successfully</string>
     <string name="multiplayer_exit_room">Exit Room</string>

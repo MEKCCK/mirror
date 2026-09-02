@@ -401,12 +401,6 @@ Type TranslateTypeFromNative(int type) {
 }
 
 int TranslateTypeToNative(Type type) {
-    // Legacy NetPlay compatibility mode (0.2.0 behaviour): SOCK_SEQPACKET
-    // was not mapped and fell back to the default socket type, matching
-    // what 0.2.0 peers expect in-game.
-    if (Settings::values.netplay_legacy_protocol.GetValue() && type == Type::SEQPACKET) {
-        return 0;
-    }
     switch (type) {
     case Type::Unspecified:
         return 0;
@@ -605,22 +599,6 @@ int TranslateTypeToNative(Type type) {
     NETWORK_PROTOCOL_TRANSLATE_ELEM(SCTP)
 #endif
 [[nodiscard]] Protocol TranslateProtocolFromNative(u32 protocol) {
-    // Legacy NetPlay compatibility mode (0.2.0 behaviour): only the core
-    // TCP/UDP protocols are mapped so unnamed (0) sockets and unknown
-    // protocols resolve the way 0.2.0 peers handle them.
-    if (Settings::values.netplay_legacy_protocol.GetValue()) {
-        switch (protocol) {
-        case 0:
-            return Protocol::Unspecified;
-        case IPPROTO_TCP:
-            return Protocol::TCP;
-        case IPPROTO_UDP:
-            return Protocol::UDP;
-        default:
-            UNIMPLEMENTED_MSG("Unimplemented protocol={}", protocol);
-            return Protocol::Unspecified;
-        }
-    }
     switch (protocol) {
 #define NETWORK_PROTOCOL_TRANSLATE_ELEM(x) case IPPROTO_##x: return Protocol::x;
     NETWORK_PROTOCOL_TRANSLATE_LIST
@@ -631,20 +609,6 @@ int TranslateTypeToNative(Type type) {
     }
 }
 [[nodiscard]] u32 TranslateProtocolToNative(Protocol protocol) {
-    // Legacy NetPlay compatibility mode (0.2.0 behaviour).
-    if (Settings::values.netplay_legacy_protocol.GetValue()) {
-        switch (protocol) {
-        case Protocol::Unspecified:
-            return 0;
-        case Protocol::TCP:
-            return IPPROTO_TCP;
-        case Protocol::UDP:
-            return IPPROTO_UDP;
-        default:
-            UNIMPLEMENTED_MSG("Unimplemented protocol={}", protocol);
-            return 0;
-        }
-    }
     switch (protocol) {
 #define NETWORK_PROTOCOL_TRANSLATE_ELEM(x) case Protocol::x: return IPPROTO_##x;
     NETWORK_PROTOCOL_TRANSLATE_LIST
