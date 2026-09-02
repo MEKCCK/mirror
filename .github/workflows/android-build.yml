@@ -41,7 +41,7 @@ jobs:
       - name: Configure native (fetch CPM deps incl. SDL3 java sources)
         working-directory: src/android
         run: |
-          ./gradlew :app:configureCMakeRelease --no-daemon
+          ./gradlew :app:configureCMakeMainlineRelease --no-daemon
 
       - name: Build Mainline (Debug)
         working-directory: src/android
