@@ -35,6 +35,19 @@ public:
 
     bool Rename(std::string_view new_name) override;
 
+    bool IsNczFile() const override {
+        return file && file->IsNczFile();
+    }
+    bool HasDecryptedSections() const override {
+        return file && file->HasDecryptedSections();
+    }
+    std::shared_ptr<VfsFile> GetUnderlyingFile() const override {
+        return file;
+    }
+    NCZVirtualFile* GetNczFilePointer() override {
+        return file ? file->GetNczFilePointer() : nullptr;
+    }
+
     std::size_t GetOffset() const;
 
 private:

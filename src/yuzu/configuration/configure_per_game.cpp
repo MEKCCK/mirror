@@ -202,8 +202,16 @@ void ConfigurePerGame::LoadConfiguration() {
 
     ui->display_filename->setText(QString::fromStdString(file->GetName()));
 
-    ui->display_format->setText(
-        QString::fromStdString(Loader::GetFileTypeString(loader->GetFileType())));
+    QString format_str =
+        QString::fromStdString(Loader::GetFileTypeString(loader->GetFileType()));
+    const auto ext = Common::ToLower(
+        std::string(Common::FS::GetExtensionFromFilename(file->GetName())));
+    if (ext == "nsz") {
+        format_str = QStringLiteral("NSZ");
+    } else if (ext == "xcz") {
+        format_str = QStringLiteral("XCZ");
+    }
+    ui->display_format->setText(format_str);
 
     const auto valueText = ReadableByteSize(file->GetSize());
     ui->display_size->setText(valueText);
